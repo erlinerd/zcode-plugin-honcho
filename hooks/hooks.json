@@ -1,0 +1,49 @@
+{
+  "description": "Honcho memory hooks for ZCode.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "process",
+            "command": "node",
+            "args": [
+              "${ZCODE_PLUGIN_ROOT}/dist/hooks/entry.mjs"
+            ],
+            "timeoutMs": 5000,
+            "statusMessage": "Honcho: recalling memory…"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "process",
+            "command": "node",
+            "args": [
+              "${ZCODE_PLUGIN_ROOT}/dist/hooks/entry.mjs"
+            ],
+            "timeoutMs": 5000
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "process",
+            "command": "node",
+            "args": [
+              "${ZCODE_PLUGIN_ROOT}/dist/hooks/entry.mjs"
+            ],
+            "timeoutMs": 20000,
+            "statusMessage": "Honcho: saving memory…"
+          }
+        ]
+      }
+    ]
+  }
+}

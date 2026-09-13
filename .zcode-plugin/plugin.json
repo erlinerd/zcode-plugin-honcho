@@ -1,0 +1,95 @@
+{
+  "name": "honcho-memory",
+  "description": "Fail-open Honcho memory for ZCode sessions.",
+  "description_i18n": {
+    "en": "Fail-open Honcho memory for ZCode sessions.",
+    "zh-CN": "为 ZCode 会话提供 fail-open 的 Honcho 长期记忆。"
+  },
+  "version": "0.1.2",
+  "author": {
+    "name": "Community contributor"
+  },
+  "license": "MIT",
+  "keywords": [
+    "honcho",
+    "memory",
+    "persistent-memory",
+    "context",
+    "hooks"
+  ],
+  "userConfig": {
+    "honcho_api_key": {
+      "title": "Honcho API key",
+      "description": "Honcho API key. Stored locally and used only by the hook process.",
+      "type": "string",
+      "required": false,
+      "sensitive": true
+    },
+    "honcho_base_url": {
+      "title": "Honcho base URL",
+      "description": "Honcho API host, for example https://api.honcho.dev.",
+      "type": "string",
+      "default": "https://api.honcho.dev"
+    },
+    "honcho_workspace_id": {
+      "title": "Honcho workspace ID",
+      "description": "Workspace shared by the agent integrations that should share memory.",
+      "type": "string",
+      "required": false
+    },
+    "honcho_peer_id": {
+      "title": "Honcho user peer ID",
+      "description": "Stable peer ID for the person whose memory is being built.",
+      "type": "string",
+      "required": false
+    },
+    "honcho_assistant_peer_id": {
+      "title": "Honcho assistant peer ID",
+      "description": "Peer ID used for ZCode assistant messages.",
+      "type": "string",
+      "default": "zcode"
+    },
+    "enabled": {
+      "title": "Enable memory",
+      "description": "Enable Honcho recall and writeback.",
+      "type": "boolean",
+      "default": true
+    },
+    "inject_context": {
+      "title": "Inject recalled context",
+      "description": "Add bounded Honcho context at session start.",
+      "type": "boolean",
+      "default": true
+    },
+    "capture_prompts": {
+      "title": "Capture user prompts",
+      "description": "Include user prompts in Honcho messages.",
+      "type": "boolean",
+      "default": true
+    },
+    "capture_responses": {
+      "title": "Capture assistant responses",
+      "description": "Include final assistant responses in Honcho messages.",
+      "type": "boolean",
+      "default": true
+    },
+    "max_context_chars": {
+      "title": "Maximum context characters",
+      "description": "Maximum characters injected into ZCode at session start.",
+      "type": "number",
+      "default": 8000
+    },
+    "max_capture_chars": {
+      "title": "Maximum capture characters",
+      "description": "Maximum characters stored per user or assistant message.",
+      "type": "number",
+      "default": 20000
+    },
+    "debug": {
+      "title": "Debug diagnostics",
+      "description": "Write non-sensitive lifecycle diagnostics to stderr.",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

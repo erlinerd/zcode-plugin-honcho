@@ -1,0 +1,8 @@
+node_modules/
+dist/
+artifacts/
+.env*
+*.log
+.zcode-data/
+.pi/
+.DS_Store

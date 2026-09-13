@@ -1,0 +1,36 @@
+{
+  "name": "zcode-plugin-honcho",
+  "version": "0.1.2",
+  "private": true,
+  "description": "Persistent Honcho memory for ZCode sessions.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit && node scripts/build.mjs",
+    "clean": "node scripts/clean.mjs",
+    "lint": "oxlint src test scripts",
+    "lint:fix": "oxlint --fix src test scripts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "validate": "node scripts/validate.mjs",
+    "validate:artifact": "node scripts/validate.mjs --artifact",
+    "package:plugin": "npm run build && npm run validate && node scripts/package-plugin.mjs && npm run validate:artifact",
+    "check": "npm run lint && npm run typecheck && npm test && npm run validate",
+    "prepare": "husky && npm run build"
+  },
+  "dependencies": {
+    "@honcho-ai/sdk": "^2.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "esbuild": "^0.25.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.1",
+    "oxlint": "^1.82.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.1.0"
+  }
+}
