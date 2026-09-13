@@ -1,5 +1,5 @@
 {
-  "name": "honcho-memory",
+  "name": "zcode-plugin-honcho",
   "description": "Fail-open Honcho memory for ZCode sessions.",
   "description_i18n": {
     "en": "Fail-open Honcho memory for ZCode sessions.",

@@ -1,12 +1,12 @@
 {
-  "name": "zcode-honcho-community",
+  "name": "zcode-plugin-honcho",
   "description": "Community ZCode plugins for Honcho memory.",
   "owner": {
     "name": "Community contributor"
   },
   "plugins": [
     {
-      "name": "honcho-memory",
+      "name": "zcode-plugin-honcho",
       "description": "Fail-open Honcho memory for ZCode sessions.",
       "source": ".",
       "version": "0.1.2",

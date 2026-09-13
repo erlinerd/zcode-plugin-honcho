@@ -11,7 +11,7 @@ export function defaultDataDir(): string {
       "cli",
       "plugins",
       "data",
-      "honcho-memory",
+      "zcode-plugin-honcho",
     )
   );
 }

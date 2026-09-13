@@ -14,7 +14,7 @@ body:
     attributes:
       label: Plugin version
       description: The installed plugin version and marketplace source.
-      placeholder: "0.1.1 from zcode-honcho-community"
+      placeholder: "0.1.2 from zcode-plugin-honcho"
     validations:
       required: true
   - type: input

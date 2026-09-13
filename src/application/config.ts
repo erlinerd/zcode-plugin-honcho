@@ -72,7 +72,7 @@ function readStoredOptions(env: NodeJS.ProcessEnv): StoredOptions {
         configuredPluginId && options[configuredPluginId]
           ? configuredPluginId
           : Object.keys(options).find((key) =>
-              key.startsWith("honcho-memory@"),
+              key.startsWith("zcode-plugin-honcho@"),
             );
       if (pluginId) return parseStoredOptions(options[pluginId]);
     } catch (error) {

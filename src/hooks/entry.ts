@@ -32,7 +32,7 @@ async function readStdin(): Promise<string> {
 }
 
 function diagnostics(enabled: boolean, message: string): void {
-  if (enabled) process.stderr.write(`[honcho-memory] ${message}\n`);
+  if (enabled) process.stderr.write(`[zcode-plugin-honcho] ${message}\n`);
 }
 
 function protocolOutput(event: string | null, result: HookResult): string {

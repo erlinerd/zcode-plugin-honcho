@@ -49,7 +49,7 @@ npm run package:plugin
 
 ZCode 会把一个目录当作**插件市场**，本仓库根目录带有 `marketplace.json`。先构建，然后在
 **Settings → Plugins → Add marketplace → Select directory** 选择本仓库目录，从个人市场安装
-`honcho-memory`，启用并填写 `userConfig`。
+`zcode-plugin-honcho`，启用并填写 `userConfig`。
 
 也可以在线安装：在 **Settings → Plugins → Create → Add marketplace** 中填入 GitHub 仓库地址：
 
@@ -60,7 +60,7 @@ ZCode 会把一个目录当作**插件市场**，本仓库根目录带有 `marke
 - 最新 ZIP 校验文件：<https://github.com/erlinerd/zcode-plugin-honcho/releases/latest/download/plugin.zip.sha256>
 - Release 页面：<https://github.com/erlinerd/zcode-plugin-honcho/releases/latest>
 
-市场名为 `zcode-honcho-community`，其 `marketplace.json` 用 `source: "."` 指向仓库本身；
+市场名为 `zcode-plugin-honcho`，其 `marketplace.json` 用 `source: "."` 指向仓库本身；
 带版本的发布产物由打 tag 的 GitHub Actions 工作流生成。
 
 安装后在插件设置里填 `honcho_api_key`、`honcho_workspace_id`、`honcho_peer_id`。

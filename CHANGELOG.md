@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- 插件 id 与市场 id 统一为 `zcode-plugin-honcho`（原插件 id `honcho-memory`、市场 id `zcode-honcho-community`）。对已安装用户是 breaking change：需从市场重装新 id 的插件并重新保存 `userConfig`（选项键随 id 变化）；如需保留 outbox/会话状态，把 `~/.zcode/cli/plugins/data/honcho-memory/` 改名为 `zcode-plugin-honcho/`。
+
 ## 0.1.2 - 2026-09-13
 
 - pending flush 加时间预算（SessionStart 2s / Stop 15s）：积压多时不再串行重试超出 hook 超时被 ZCode 击杀、丢失本次 recall；超预算条目留在 outbox 下次重试，剩余数上报到诊断。
