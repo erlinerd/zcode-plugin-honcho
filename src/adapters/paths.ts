@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
+import { PLUGIN_ID } from "../domain/identity.js";
 
 export function defaultDataDir(): string {
   return (
@@ -11,7 +12,7 @@ export function defaultDataDir(): string {
       "cli",
       "plugins",
       "data",
-      "zcode-plugin-honcho",
+      PLUGIN_ID,
     )
   );
 }

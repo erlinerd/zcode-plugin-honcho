@@ -2,13 +2,14 @@ import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import type { HookConfig } from "../domain/types.js";
+import { PLUGIN_ID } from "../domain/identity.js";
 
 const DEFAULT_BASE_URL = "https://api.honcho.dev";
 const DEFAULT_ASSISTANT_PEER_ID = "zcode";
 const DEFAULT_MAX_CONTEXT_CHARS = 8_000;
 const DEFAULT_MAX_CAPTURE_CHARS = 20_000;
 
-export type StoredOption = string | number | boolean;
+type StoredOption = string | number | boolean;
 export type StoredOptions = Record<string, StoredOption>;
 
 type ConfigValue = StoredOption | undefined;
@@ -72,7 +73,7 @@ function readStoredOptions(env: NodeJS.ProcessEnv): StoredOptions {
         configuredPluginId && options[configuredPluginId]
           ? configuredPluginId
           : Object.keys(options).find((key) =>
-              key.startsWith("zcode-plugin-honcho@"),
+              key.startsWith(`${PLUGIN_ID}@`),
             );
       if (pluginId) return parseStoredOptions(options[pluginId]);
     } catch (error) {

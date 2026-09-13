@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { isConfigured, readConfig } from "../src/application/config.js";
+import { PLUGIN_ID } from "../src/domain/identity.js";
 
 describe("configuration", () => {
   it("prefers ZCode userConfig, then environment, over stored options", () => {
@@ -64,5 +68,75 @@ describe("configuration", () => {
     expect(config.captureResponses).toBe(false);
     expect(config.injectContext).toBe(false);
     expect(config.maxContextChars).toBe(8000);
+  });
+});
+
+describe("stored options plugin-id matching", () => {
+  const NEW_KEY = `${PLUGIN_ID}@${PLUGIN_ID}`;
+  const OLD_KEY = "honcho-memory@zcode-honcho-community";
+  const tempDirs: string[] = [];
+
+  beforeEach(() => {
+    // Isolate the homedir fallback in readStoredOptions from the real machine.
+    const home = mkdtempSync(join(tmpdir(), "honcho-home-"));
+    tempDirs.push(home);
+    vi.stubEnv("HOME", home);
+  });
+
+  function writeConfigFile(options: Record<string, unknown>): string {
+    const dir = mkdtempSync(join(tmpdir(), "honcho-config-"));
+    tempDirs.push(dir);
+    const file = join(dir, "config.json");
+    writeFileSync(file, JSON.stringify({ plugins: { options } }));
+    return file;
+  }
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    while (tempDirs.length > 0) {
+      rmSync(tempDirs.pop() as string, { recursive: true, force: true });
+    }
+  });
+
+  it("finds stored options by the current plugin-id prefix", () => {
+    const file = writeConfigFile({
+      [OLD_KEY]: { honcho_api_key: "old-key" },
+      [NEW_KEY]: {
+        honcho_api_key: "new-key",
+        honcho_workspace_id: "workspace",
+        honcho_peer_id: "lei",
+      },
+    });
+
+    const config = readConfig({ ZCODE_CONFIG_PATH: file });
+
+    expect(config.apiKey).toBe("new-key");
+  });
+
+  it("prefers the configured plugin id over the prefix scan", () => {
+    const file = writeConfigFile({
+      "zcode-plugin-honcho@other-marketplace": {
+        honcho_api_key: "scan-order-key",
+      },
+      [NEW_KEY]: { honcho_api_key: "env-id-key" },
+    });
+
+    const config = readConfig({
+      ZCODE_CONFIG_PATH: file,
+      ZCODE_PLUGIN_ID: NEW_KEY,
+    });
+
+    expect(config.apiKey).toBe("env-id-key");
+  });
+
+  it("falls back to defaults for pre-rename keys (breaking change)", () => {
+    const file = writeConfigFile({
+      [OLD_KEY]: { honcho_api_key: "old-key" },
+    });
+
+    const config = readConfig({ ZCODE_CONFIG_PATH: file });
+
+    expect(config.apiKey).toBeNull();
+    expect(isConfigured(config)).toBe(false);
   });
 });

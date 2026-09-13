@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-- 插件 id 与市场 id 统一为 `zcode-plugin-honcho`（原插件 id `honcho-memory`、市场 id `zcode-honcho-community`）。对已安装用户是 breaking change：需从市场重装新 id 的插件并重新保存 `userConfig`（选项键随 id 变化）；如需保留 outbox/会话状态，把 `~/.zcode/cli/plugins/data/honcho-memory/` 改名为 `zcode-plugin-honcho/`。
+- 插件 id 与市场 id 统一为 `zcode-plugin-honcho`（原插件 id `honcho-memory`、市场 id `zcode-honcho-community`）。对已安装用户是 breaking change，升级步骤：
+  1. 在 **Settings → Plugins** 删除旧市场 `zcode-honcho-community`，用仓库地址重新添加市场（新市场名 `zcode-plugin-honcho`）并安装插件；
+  2. 在插件设置重新保存 `userConfig`——选项键随 id 变化，不重存则插件静默停用（fail-open）；
+  3. 如需保留 outbox/会话状态，把 `~/.zcode/cli/plugins/data/` 下的旧目录改名为 `zcode-plugin-honcho@zcode-plugin-honcho/`（ZCode 实际布局是 `<插件id>@<市场id>`；仅 ZCode 未托管、走代码 fallback 的场景才叫 `honcho-memory/`）。
 
 ## 0.1.2 - 2026-09-13
 

@@ -8,6 +8,7 @@ import {
 import { JsonOutboxStore } from "../adapters/json-outbox-store.js";
 import { JsonSessionStore } from "../adapters/json-session-store.js";
 import { eventName } from "../domain/extract.js";
+import { PLUGIN_ID } from "../domain/identity.js";
 import type { HookPayload, HookResult } from "../domain/types.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -32,7 +33,7 @@ async function readStdin(): Promise<string> {
 }
 
 function diagnostics(enabled: boolean, message: string): void {
-  if (enabled) process.stderr.write(`[zcode-plugin-honcho] ${message}\n`);
+  if (enabled) process.stderr.write(`[${PLUGIN_ID}] ${message}\n`);
 }
 
 function protocolOutput(event: string | null, result: HookResult): string {
