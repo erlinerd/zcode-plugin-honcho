@@ -72,9 +72,7 @@ function readStoredOptions(env: NodeJS.ProcessEnv): StoredOptions {
       const pluginId =
         configuredPluginId && options[configuredPluginId]
           ? configuredPluginId
-          : Object.keys(options).find((key) =>
-              key.startsWith(`${PLUGIN_ID}@`),
-            );
+          : Object.keys(options).find((key) => key.startsWith(`${PLUGIN_ID}@`));
       if (pluginId) return parseStoredOptions(options[pluginId]);
     } catch (error) {
       if (error instanceof SyntaxError) return {};
