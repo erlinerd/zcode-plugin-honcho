@@ -5,7 +5,7 @@
     "en": "Fail-open Honcho memory for ZCode sessions.",
     "zh-CN": "为 ZCode 会话提供 fail-open 的 Honcho 长期记忆。"
   },
-  "version": "0.1.2",
+  "version": "0.2.0",
   "author": {
     "name": "Community contributor"
   },
