@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -25,27 +25,23 @@ const packageRoot = resolve(stagingDir, pluginName);
 if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(pluginName))
   throw new Error(`Invalid plugin name: ${pluginName}`);
 
-const packageFiles = [
-  ".zcode-plugin/plugin.json",
-  "hooks/hooks.json",
-  "dist/plugin.json",
-  "dist/hooks/entry.mjs",
-  "dist/hooks/entry.mjs.map",
-  "dist/hooks/hooks.json",
-  "THIRD_PARTY_NOTICES.md",
-];
+const canonicalDir = resolve(root, "build", "official", "plugins", pluginName);
+try {
+  await stat(canonicalDir);
+} catch {
+  throw new Error(
+    `Canonical official build missing at build/official/plugins/${pluginName}; run npm run build first`,
+  );
+}
 
 await rm(stagingDir, { recursive: true, force: true });
 await rm(archivePath, { force: true });
 await rm(checksumPath, { force: true });
 await mkdir(packageRoot, { recursive: true });
 
-for (const relativePath of packageFiles) {
-  const source = resolve(root, relativePath);
-  const destination = resolve(packageRoot, relativePath);
-  await mkdir(dirname(destination), { recursive: true });
-  await cp(source, destination);
-}
+// The ZIP is an archive of the canonical official-layout directory. It never
+// re-reads repository source or rebuilds the runtime.
+await cp(canonicalDir, packageRoot, { recursive: true });
 
 try {
   execFileSync("zip", ["-X", "-q", "-r", archivePath, pluginName], {

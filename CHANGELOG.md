@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- 新增官方市场分发架构（spec 见 `.scratch/official-marketplace/spec.md`）：`npm run build` 现在直接产出唯一 canonical 官方布局目录 `build/official/plugins/zcode-plugin-honcho/`（esbuild 仅运行一次，ZIP 与官方目录副本均为同一产物的字节拷贝）；bundle 头部带版本来源标记。
+- `npm run package:plugin` 改为归档该官方布局目录（ZIP 内新增 README 双语版、LICENSE、元数据 package.json；运行时行为不变）；新增 `validate:official` 与 `dist` 脚本。
+- 新增 `npm run sync-official`：把官方布局目录复制入 `zai-org/zcode-plugins` 的本地 fork、upsert 根 marketplace 条目、提交并推送同步分支；支持 `--dry-run`/`--no-push`/`--allow-dirty`/`--dir`/`--branch`，重复运行幂等。
+- `docs/releasing.md` 更新：修正「官方目录引用 ZIP-URL」的过期描述（官方 validator 只接受 `./plugins/<name>` 入树条目），改为官方同步流程。
+
 ## 0.2.0 - 2026-09-13
 
 - 插件 id 与市场 id 统一为 `zcode-plugin-honcho`（原插件 id `honcho-memory`、市场 id `zcode-honcho-community`）。对已安装用户是 breaking change，升级步骤：

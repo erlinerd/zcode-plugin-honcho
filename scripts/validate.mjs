@@ -2,8 +2,20 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const repoRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+);
 const artifactMode = process.argv.includes("--artifact");
+const officialMode = process.argv.includes("--official");
+
+function optionValue(flag) {
+  const index = process.argv.indexOf(flag);
+  return index === -1 ? null : (process.argv[index + 1] ?? null);
+}
+
+const rootOverride = optionValue("--root");
+const root = rootOverride ? path.resolve(rootOverride) : repoRoot;
 
 function readJson(relativePath) {
   try {
@@ -92,25 +104,164 @@ if (artifactMode) {
 }
 
 const credentialPattern = /(?:hch|sk|pk|rk)-[A-Za-z0-9_-]{12,}/;
-const textFiles = [
-  "README.md",
-  "CHANGELOG.md",
-  "CONTRIBUTING.md",
-  "DESIGN.md",
-  "SECURITY.md",
-  "AGENTS.md",
+
+const officialLayoutFiles = [
   ".zcode-plugin/plugin.json",
-  "marketplace.json",
+  "hooks/hooks.json",
+  "dist/hooks/entry.mjs",
+  "dist/hooks/entry.mjs.map",
+  "dist/plugin.json",
+  "dist/hooks/hooks.json",
+  "package.json",
+  "README.md",
+  "README.zh-CN.md",
+  "LICENSE",
+  "THIRD_PARTY_NOTICES.md",
 ];
-if (artifactMode) textFiles.push("dist/plugin.json", "dist/hooks/entry.mjs");
-for (const relativePath of textFiles) {
-  const contents = fs.readFileSync(path.join(root, relativePath), "utf8");
+
+if (officialMode) {
+  // Mirrors the official catalog's structural rules: the plugin tree must be
+  // exactly the approved file set, with no symlinks, within size caps, and
+  // with every manifest copy aligned to the repository metadata.
+  const officialDir = path.join(root, "build", "official", "plugins", plugin.name);
   assert(
-    !credentialPattern.test(contents),
-    `Possible credential in ${relativePath}`,
+    fs.existsSync(officialDir) && fs.statSync(officialDir).isDirectory(),
+    "official: canonical build missing; run npm run build first",
   );
+  assert(
+    /^[a-z0-9]+(-[a-z0-9]+)*$/.test(plugin.name),
+    "official: plugin name must be kebab-case",
+  );
+
+  const officialFiles = new Set();
+  let officialFileCount = 0;
+  let officialBytes = 0;
+  const walkOfficial = (directory) => {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const fullPath = path.join(directory, entry.name);
+      const relativePath = path.relative(officialDir, fullPath);
+      assert(
+        !entry.isSymbolicLink(),
+        `official: symlinks are not allowed: ${relativePath}`,
+      );
+      if (entry.isDirectory()) {
+        walkOfficial(fullPath);
+        continue;
+      }
+      officialFileCount += 1;
+      officialBytes += fs.statSync(fullPath).size;
+      officialFiles.add(relativePath);
+    }
+  };
+  walkOfficial(officialDir);
+  assert(
+    officialFileCount <= 5000,
+    "official: plugin tree exceeds the official file limit",
+  );
+  assert(
+    officialBytes <= 256 * 1024 * 1024,
+    "official: plugin tree exceeds the official byte limit",
+  );
+
+  const expectedOfficial = new Set(officialLayoutFiles);
+  for (const relativePath of expectedOfficial)
+    assert(officialFiles.has(relativePath), `official: missing ${relativePath}`);
+  for (const relativePath of officialFiles)
+    assert(
+      expectedOfficial.has(relativePath),
+      `official: unexpected file ${relativePath}`,
+    );
+
+  const officialRelative = (relativePath) =>
+    path.join("build", "official", "plugins", plugin.name, relativePath);
+
+  const officialPackage = readJson(officialRelative("package.json"));
+  assert(officialPackage.name === plugin.name, "official: package name differs");
+  assert(
+    officialPackage.version === packageJson.version,
+    "official: package version differs",
+  );
+  assert(
+    officialPackage.private === true,
+    "official: package must stay private",
+  );
+
+  const officialManifest = readJson(
+    officialRelative(path.join(".zcode-plugin", "plugin.json")),
+  );
+  assert(
+    JSON.stringify(canonicalize(officialManifest)) ===
+      JSON.stringify(canonicalize(plugin)),
+    "official: plugin manifest is stale",
+  );
+  const officialDistManifest = readJson(
+    officialRelative(path.join("dist", "plugin.json")),
+  );
+  assert(
+    JSON.stringify(canonicalize(officialDistManifest)) ===
+      JSON.stringify(canonicalize(plugin)),
+    "official: generated manifest copy is stale",
+  );
+  const officialHooks = readJson(
+    officialRelative(path.join("hooks", "hooks.json")),
+  );
+  assert(
+    JSON.stringify(canonicalize(officialHooks)) ===
+      JSON.stringify(canonicalize(hooks)),
+    "official: hooks declaration is stale",
+  );
+
+  const officialEntry = fs.readFileSync(
+    path.join(officialDir, "dist", "hooks", "entry.mjs"),
+    "utf8",
+  );
+  assert(
+    officialEntry.startsWith(
+      `// Generated from ${plugin.name} v${packageJson.version}`,
+    ),
+    "official: bundle lacks a provenance header",
+  );
+
+  for (const relativePath of officialFiles) {
+    const contents = fs.readFileSync(
+      path.join(officialDir, relativePath),
+      "utf8",
+    );
+    assert(
+      !credentialPattern.test(contents),
+      `Possible credential in official ${relativePath}`,
+    );
+  }
 }
 
+if (!officialMode) {
+  const textFiles = [
+    "README.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "DESIGN.md",
+    "SECURITY.md",
+    "AGENTS.md",
+    ".zcode-plugin/plugin.json",
+    "marketplace.json",
+  ];
+  if (artifactMode) textFiles.push("dist/plugin.json", "dist/hooks/entry.mjs");
+  for (const relativePath of textFiles) {
+    const contents = fs.readFileSync(path.join(root, relativePath), "utf8");
+    assert(
+      !credentialPattern.test(contents),
+      `Possible credential in ${relativePath}`,
+    );
+  }
+}
+
+const validatedScopes = [
+  "manifests",
+  "hooks",
+  ...(artifactMode ? ["artifacts"] : []),
+  ...(officialMode ? ["official layout"] : []),
+  "credential hygiene",
+].join(", ");
 process.stdout.write(
-  `Validated ${plugin.name}@${plugin.version}: manifests, hooks, ${artifactMode ? "artifacts, " : ""}and credential hygiene.\n`,
+  `Validated ${plugin.name}@${plugin.version}: ${validatedScopes}.\n`,
 );

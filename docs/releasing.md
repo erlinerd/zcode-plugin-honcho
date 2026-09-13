@@ -25,13 +25,15 @@ for the release.
    git diff --check
    ```
 
-5. Inspect the ZIP contents. It should contain only the plugin manifest, Hook
-   declaration, bundled runtime, and third-party notices; it must not contain
-   source credentials, prompts, transcripts, or local state.
+5. Inspect the ZIP contents. It is an archive of the official-layout
+   directory and must contain only plugin metadata and documentation, the
+   plugin manifest, the Hook declaration, the bundled runtime, license files,
+   and third-party notices. It must not contain source credentials, prompts,
+   transcripts, or local state.
 6. Open a pull request and wait for every CI matrix job to pass.
 
-`dist/` and `artifacts/` are generated directories. They are intentionally
-ignored by Git and must not be added to a source pull request.
+`dist/`, `build/`, and `artifacts/` are generated directories. They are
+intentionally ignored by Git and must not be added to a source pull request.
 
 ## Publish
 
@@ -43,27 +45,35 @@ plugin.zip
 plugin.zip.sha256
 ```
 
-The official ZCode marketplace catalog should reference the immutable ZIP with
-its checksum, following the format used by the official marketplace:
+## Official marketplace sync
 
-```json
-{
-  "name": "zcode-plugin-honcho",
-  "version": "0.2.0",
-  "source": {
-    "source": "url",
-    "type": "zip",
-    "url": "https://github.com/OWNER/REPOSITORY/releases/download/v0.2.0/plugin.zip",
-    "sha256": "COPY_THE_VALUE_FROM_plugin.zip.sha256",
-    "path": "zcode-plugin-honcho"
-  }
-}
-```
+The canonical build output is the official-layout plugin directory under
+`build/official/plugins/zcode-plugin-honcho/`. The release ZIP is an archive
+of that exact directory, and the official catalog submission is a copy of it;
+neither consumer rebuilds the runtime or maintains a second implementation.
 
-Update the official catalog in a separate reviewed change when the release URL
-and checksum are available. The repository's root `marketplace.json` remains a
-local-development catalog using `source: "."`; run `npm run build` before
-installing it from a local directory.
+After a release is tagged and published:
+
+1. `npm ci`
+2. `npm run dist`
+3. `npm run sync-official -- --dry-run`
+4. `npm run sync-official`
+
+`sync-official` copies the canonical directory into a local fork of
+`zai-org/zcode-plugins` (default `~/Code/Projects/zcode-plugins`, override
+with `--dir`), upserts the fork's root `marketplace.json` entry with
+`source: "./plugins/zcode-plugin-honcho"` and the release version, commits as
+`chore: sync zcode-plugin-honcho vX.Y.Z`, and pushes the sync branch. Pass
+`--no-push` to stop before the push and `--allow-dirty` to skip the
+clean-tree guard. Repeat runs against an unchanged fork are no-ops.
+
+The official catalog rejects entries whose source is not an in-tree
+`./plugins/<name>` directory, so the submission must always be this copied
+plugin tree; ZIP-URL catalog entries cannot pass the official validator.
+
+The repository's root `marketplace.json` remains a local-development catalog
+using `source: "."`; run `npm run build` before installing it from a local
+directory.
 
 After publishing:
 
