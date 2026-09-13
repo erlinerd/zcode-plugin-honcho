@@ -1,9 +1,15 @@
-import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+function optionValue(argv, flag) {
+  const index = argv.indexOf(flag);
+  return index === -1 ? null : (argv[index + 1] ?? null);
+}
+
+const rootOverride = optionValue(process.argv.slice(2), "--root");
+const root = rootOverride ? resolve(rootOverride) : resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = resolve(root, "dist");
 const officialPluginsDir = resolve(root, "build", "official", "plugins");
 
@@ -54,7 +60,16 @@ await cp(
 // Canonical official-layout projection of this single build. Copied bytes
 // only; nothing here recompiles the runtime. The release ZIP and the official
 // catalog submission are both consumers of this exact directory.
+//
+// The projection is assembled in a staging directory and promoted with a
+// rename only after every copy succeeds. Any failure removes the staging tree
+// and any partial output, so a failed build never leaves a directory that
+// looks publishable.
 const officialPluginDir = resolve(officialPluginsDir, packageJson.name);
+const stagingPluginDir = resolve(
+  officialPluginsDir,
+  `.staging-${packageJson.name}`,
+);
 const officialCopies = [
   ".zcode-plugin/plugin.json",
   "hooks/hooks.json",
@@ -68,26 +83,36 @@ const officialCopies = [
   "THIRD_PARTY_NOTICES.md",
 ];
 
-for (const relativePath of officialCopies) {
-  const destination = resolve(officialPluginDir, relativePath);
-  await mkdir(dirname(destination), { recursive: true });
-  await cp(resolve(root, relativePath), destination);
-}
+await rm(stagingPluginDir, { recursive: true, force: true });
+try {
+  for (const relativePath of officialCopies) {
+    const destination = resolve(stagingPluginDir, relativePath);
+    await mkdir(dirname(destination), { recursive: true });
+    await cp(resolve(root, relativePath), destination);
+  }
 
-const officialPackage = {
-  name: packageJson.name,
-  version: packageJson.version,
-  description: packageJson.description,
-  license: packageJson.license,
-  private: true,
-  type: "module",
-  engines: packageJson.engines,
-};
-await writeFile(
-  resolve(officialPluginDir, "package.json"),
-  `${JSON.stringify(officialPackage, null, 2)}\n`,
-  { encoding: "utf8" },
-);
+  const officialPackage = {
+    name: packageJson.name,
+    version: packageJson.version,
+    description: packageJson.description,
+    license: packageJson.license,
+    private: true,
+    type: "module",
+    engines: packageJson.engines,
+  };
+  await writeFile(
+    resolve(stagingPluginDir, "package.json"),
+    `${JSON.stringify(officialPackage, null, 2)}\n`,
+    { encoding: "utf8" },
+  );
+
+  await rm(officialPluginDir, { recursive: true, force: true });
+  await rename(stagingPluginDir, officialPluginDir);
+} catch (error) {
+  await rm(stagingPluginDir, { recursive: true, force: true });
+  await rm(officialPluginDir, { recursive: true, force: true });
+  throw error;
+}
 
 process.stdout.write(
   `${JSON.stringify({

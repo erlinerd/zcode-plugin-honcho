@@ -168,6 +168,39 @@ describe("official-layout distribution", () => {
     });
   });
 
+  test("failed build leaves no publishable official tree", () => {
+    const fakeRoot = mkdtempSync(join(tmpdir(), "build-root-"));
+    try {
+      // A complete input tree except THIRD_PARTY_NOTICES.md, whose absence
+      // fails a late copy and simulates a mid-build failure.
+      for (const relativePath of [
+        "package.json",
+        ".zcode-plugin/plugin.json",
+        "hooks/hooks.json",
+        "README.md",
+        "README.zh-CN.md",
+        "LICENSE",
+      ]) {
+        const destination = join(fakeRoot, relativePath);
+        mkdirSync(dirname(destination), { recursive: true });
+        cpSync(join(repoRoot, relativePath), destination);
+      }
+      mkdirSync(join(fakeRoot, "src", "hooks"), { recursive: true });
+      writeFileSync(join(fakeRoot, "src", "hooks", "entry.ts"), "export {};\n");
+
+      const error = runScriptExpectFailure("build.mjs", ["--root", fakeRoot]);
+      expect(errorText(error)).toContain("THIRD_PARTY_NOTICES");
+      expect(
+        existsSync(join(fakeRoot, "build", "official", "plugins", pluginName)),
+      ).toBe(false);
+      expect(
+        existsSync(join(fakeRoot, "build", "official", `.staging-${pluginName}`)),
+      ).toBe(false);
+    } finally {
+      rmSync(fakeRoot, { recursive: true, force: true });
+    }
+  });
+
   test("official validation passes on the canonical build", () => {
     const stdout = runScript("validate.mjs", ["--official"]);
     expect(stdout).toContain("official layout");
@@ -181,7 +214,10 @@ describe("official-layout distribution", () => {
       version: string;
       sha256: string;
     };
-    expect(summary).toMatchObject({ plugin: pluginName, version: pluginVersion });
+    expect(summary).toMatchObject({
+      plugin: pluginName,
+      version: pluginVersion,
+    });
 
     const digest = createHash("sha256")
       .update(readFileSync(zipPath))
