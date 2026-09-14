@@ -69,10 +69,12 @@ After publishing:
 Do not include Honcho credentials or real user content in release notes,
 artifacts, screenshots, or smoke-test fixtures.
 
-## Sync the catalog fork
+## Catalog sync (deferred)
 
-Push the catalog-ready layout to the `erlinerd/zcode-plugins` fork without
-manual copying:
+Syncing the plugin layout to the official catalog fork and opening a catalog
+PR are intentionally deferred for this repository (decision recorded with the
+0.2.3 release, 2026-09-14). The `sync:catalog` script stays available for a
+local, manual sync when that changes:
 
 ```bash
 npm run sync:catalog -- \
@@ -80,14 +82,8 @@ npm run sync:catalog -- \
   --branch feat/zcode-plugin-honcho
 ```
 
-The command validates the layout, mirrors the plugin tree into the fork's
-`plugins/` directory, upserts the fork's `marketplace.json` entry from the
-generated shell manifest, and commits `chore(catalog): sync
-zcode-plugin-honcho vX.Y.Z`. Add `--push` to push the branch; add `--dry-run`
-to print the plan without touching the fork. Repeat runs against an unchanged
-fork are no-ops.
-
-Pushing a version tag also runs `.github/workflows/catalog-sync.yml`, which
-performs the same sync automatically against a fork clone created from the
-`CATALOG_SYNC_PAT` secret (a fine-grained PAT with `Contents: Read and write`
-access to `erlinerd/zcode-plugins`).
+It validates the layout, mirrors the plugin tree into the fork's `plugins/`
+directory, upserts the fork's `marketplace.json` entry, and commits
+`chore(catalog): sync zcode-plugin-honcho vX.Y.Z`. The tag-triggered sync
+workflow is intentionally absent; re-add it (with the `CATALOG_SYNC_PAT`
+secret) only when catalog submission is actually wanted.

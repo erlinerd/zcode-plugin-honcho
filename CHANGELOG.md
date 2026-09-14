@@ -8,7 +8,7 @@
 - `scripts/validate.mjs` 重写：校验根 manifest 与 `.claude-plugin` 深度相等、根 marketplace source 必须为 `./dist/plugins/<name>`；`--artifact` 校验 dist bundle 构建标记。
 - `scripts/package-plugin.mjs` 删除：ZIP 只由 release workflow 从 `dist/` 打包（资产名 `zcode-plugin-honcho-v<version>.zip` + sha256）；`package:plugin` = build + validate + validate:artifact。
 - `scripts/sync-official.mjs` 替换为 `scripts/sync-catalog.mjs`（`npm run sync:catalog`）：镜像 `dist/plugins/<name>` 八件套入 fork、用壳 manifest 逐字构造目录条目（含 `description_i18n`）、`--repo` 必填、`--push` 显式、以 git 跟踪集判定幂等、`add --force` 防 fork gitignore 吞 bundle。
-- 新增 `.github/workflows/catalog-sync.yml`：打 tag 自动同步官方目录 fork（`CATALOG_SYNC_PAT` + bot 身份 + push 校验）；ci.yml 去掉旧 artifacts checksum 步骤。
+- ci.yml 去掉旧 artifacts checksum 步骤；官方目录 fork 同步与 PR **明确延后**（`sync:catalog` 脚本保留，打 tag 触发的同步工作流不引入）。
 - 文档更新：`docs/releasing.md` 改为「dist 市场树 + ZIP 发布 + catalog 同步」流程；README 安装说明改为「发行 ZIP 解压即市场」，并明确新 clone 不可直接作市场。
 
 ## 0.2.0 - 2026-09-13
