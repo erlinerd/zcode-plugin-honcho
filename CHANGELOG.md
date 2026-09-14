@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.3 - 2026-09-14
 
 - 发行架构对齐 zcode-plugin-langfuse 终版设计：`dist/` 定型为「市场壳 + 官方模板插件布局」——`dist/marketplace.json`（source `./plugins/<name>`）+ `dist/plugins/zcode-plugin-honcho/`（`.zcode-plugin/` 与 `.claude-plugin/` 双 manifest、`hooks/hooks.json`、直达 bundle `hooks/entry.mjs`（无 dist 段、无 sourcemap）、双语 README、LICENSE、THIRD_PARTY_NOTICES）。根 `marketplace.json` 的 entry 改指 `./dist/plugins/<name>` 并补 `description_i18n`/`category`/`tags`/`strict`。
 - 新增根级 `.claude-plugin/plugin.json`（与 `.zcode-plugin/plugin.json` 深度相等，Claude 兼容）；`hooks/hooks.json` 入口改为 `${ZCODE_PLUGIN_ROOT}/hooks/entry.mjs`。

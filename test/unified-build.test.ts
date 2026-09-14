@@ -107,7 +107,10 @@ describe("unified plugin package", () => {
         encoding: "utf8",
       });
       expect(JSON.parse(stdout)).toEqual({});
-      const entries = readdirSync(dataDir, { recursive: true, withFileTypes: true });
+      const entries = readdirSync(dataDir, {
+        recursive: true,
+        withFileTypes: true,
+      });
       expect(entries.filter((entry) => entry.isFile())).toEqual([]);
     } finally {
       rmSync(dataDir, { recursive: true, force: true });

@@ -8,11 +8,7 @@ const maxPluginFiles = 5000;
 const maxPluginBytes = 256 * 1024 * 1024;
 const semverPattern = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 const kebabPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const expectedHookEvents = [
-  "SessionStart",
-  "UserPromptSubmit",
-  "Stop",
-];
+const expectedHookEvents = ["SessionStart", "UserPromptSubmit", "Stop"];
 const runtimeEntryRelative = "hooks/entry.mjs";
 
 // Required inside the plugin directory (official template layout).
