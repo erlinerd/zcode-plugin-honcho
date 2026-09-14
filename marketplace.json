@@ -1,19 +1,25 @@
 {
   "name": "zcode-plugin-honcho",
   "description": "Community ZCode plugins for Honcho memory.",
-  "owner": {
-    "name": "Community contributor"
-  },
   "plugins": [
     {
       "name": "zcode-plugin-honcho",
+      "source": "./dist/plugins/zcode-plugin-honcho",
       "description": "Fail-open Honcho memory for ZCode sessions.",
-      "source": ".",
+      "description_i18n": {
+        "en": "Fail-open Honcho memory for ZCode sessions.",
+        "zh-CN": "为 ZCode 会话提供 fail-open 的 Honcho 长期记忆。"
+      },
       "version": "0.2.0",
-      "strict": true,
-      "components": [
+      "category": "developer-tools",
+      "tags": [
+        "honcho",
+        "memory",
+        "persistent-memory",
+        "context",
         "hooks"
-      ]
+      ],
+      "strict": true
     }
   ]
 }

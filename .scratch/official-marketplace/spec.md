@@ -264,3 +264,16 @@ working material; this spec is the actionable, ready-for-agent decision.
 
 Estimated implementation effort: about 1–2 hours if the existing packaging
 helpers are reusable, plus 30–60 minutes for focused tests and a dry-run sync.
+
+## Comments
+
+### 2026-09-14 — superseded by the langfuse final architecture
+
+Implementation went further than this spec: the repository adopted the
+zcode-plugin-langfuse final design (commit f63126d). `dist/` is now the
+marketplace shell + official-template plugin layout
+(`dist/plugins/zcode-plugin-honcho`, bundle at `hooks/entry.mjs`); the
+`build/official/` canonical tree, its staging/promotion step, the
+`--official` validation mode, and `sync-official` were replaced by
+`build-layout.mjs` validation, the shell manifests, and `sync-catalog.mjs`.
+See CHANGELOG "Unreleased" for the authoritative list.

@@ -8,7 +8,7 @@
 
 - [ ] `npm run check`
 - [ ] `npm run package:plugin`
-- [ ] `artifacts/plugin.zip` checksum verifies; generated `dist/` and `artifacts/` remain ignored.
+- [ ] `npm run package:plugin` builds and validates the `dist/` marketplace tree; `dist/` remains ignored.
 - [ ] Plugin and marketplace versions remain synchronized.
 - [ ] No credentials, prompts, transcripts, or private Hook payloads are included.
 

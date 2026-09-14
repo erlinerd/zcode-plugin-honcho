@@ -2,10 +2,14 @@
 
 ## Unreleased
 
-- 新增官方市场分发架构（spec 见 `.scratch/official-marketplace/spec.md`）：`npm run build` 现在直接产出唯一 canonical 官方布局目录 `build/official/plugins/zcode-plugin-honcho/`（esbuild 仅运行一次，ZIP 与官方目录副本均为同一产物的字节拷贝）；bundle 头部带版本来源标记。
-- `npm run package:plugin` 改为归档该官方布局目录（ZIP 内新增 README 双语版、LICENSE、元数据 package.json；运行时行为不变）；新增 `validate:official` 与 `dist` 脚本。
-- 新增 `npm run sync-official`：把官方布局目录复制入 `zai-org/zcode-plugins` 的本地 fork、upsert 根 marketplace 条目、提交并推送同步分支；支持 `--dry-run`/`--no-push`/`--allow-dirty`/`--dir`/`--branch`，重复运行幂等。
-- `docs/releasing.md` 更新：修正「官方目录引用 ZIP-URL」的过期描述（官方 validator 只接受 `./plugins/<name>` 入树条目），改为官方同步流程。
+- 发行架构对齐 zcode-plugin-langfuse 终版设计：`dist/` 定型为「市场壳 + 官方模板插件布局」——`dist/marketplace.json`（source `./plugins/<name>`）+ `dist/plugins/zcode-plugin-honcho/`（`.zcode-plugin/` 与 `.claude-plugin/` 双 manifest、`hooks/hooks.json`、直达 bundle `hooks/entry.mjs`（无 dist 段、无 sourcemap）、双语 README、LICENSE、THIRD_PARTY_NOTICES）。根 `marketplace.json` 的 entry 改指 `./dist/plugins/<name>` 并补 `description_i18n`/`category`/`tags`/`strict`。
+- 新增根级 `.claude-plugin/plugin.json`（与 `.zcode-plugin/plugin.json` 深度相等，Claude 兼容）；`hooks/hooks.json` 入口改为 `${ZCODE_PLUGIN_ROOT}/hooks/entry.mjs`。
+- 新增 `scripts/build-layout.mjs`（`validatePluginRoot`：壳 source、manifest 对齐、双 manifest 深度相等、hook 事件集与入口参数、8 个必需文件、构建来源标记、无符号链接、文件/字节上限）；`scripts/build.mjs` 组装 dist 后自校验。
+- `scripts/validate.mjs` 重写：校验根 manifest 与 `.claude-plugin` 深度相等、根 marketplace source 必须为 `./dist/plugins/<name>`；`--artifact` 校验 dist bundle 构建标记。
+- `scripts/package-plugin.mjs` 删除：ZIP 只由 release workflow 从 `dist/` 打包（资产名 `zcode-plugin-honcho-v<version>.zip` + sha256）；`package:plugin` = build + validate + validate:artifact。
+- `scripts/sync-official.mjs` 替换为 `scripts/sync-catalog.mjs`（`npm run sync:catalog`）：镜像 `dist/plugins/<name>` 八件套入 fork、用壳 manifest 逐字构造目录条目（含 `description_i18n`）、`--repo` 必填、`--push` 显式、以 git 跟踪集判定幂等、`add --force` 防 fork gitignore 吞 bundle。
+- 新增 `.github/workflows/catalog-sync.yml`：打 tag 自动同步官方目录 fork（`CATALOG_SYNC_PAT` + bot 身份 + push 校验）；ci.yml 去掉旧 artifacts checksum 步骤。
+- 文档更新：`docs/releasing.md` 改为「dist 市场树 + ZIP 发布 + catalog 同步」流程；README 安装说明改为「发行 ZIP 解压即市场」，并明确新 clone 不可直接作市场。
 
 ## 0.2.0 - 2026-09-13
 

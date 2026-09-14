@@ -14,8 +14,7 @@ permissions:
 
 jobs:
   release:
-    # Protected environment also satisfies zizmor's cache-poisoning audit:
-    # published artifacts must come from an environment-gated job.
+    # Gated environment: published artifacts must come from a trusted job.
     environment: release
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -23,20 +22,27 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        # Tag-only publish job; setup-node caching is not enabled, so there
+        # is no restorable cache to poison.
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0 # zizmor: ignore[cache-poisoning]
         with:
           node-version: 20
       - run: npm ci
       - run: npm audit --omit=dev --audit-level=high
       - run: npm run check
       - run: npm run package:plugin
-      - name: Verify package checksum
-        working-directory: artifacts
-        run: shasum -a 256 -c plugin.zip.sha256
+      - name: Package the marketplace ZIP
+        run: |
+          version=$(node -p "require('./.zcode-plugin/plugin.json').version")
+          (cd dist && zip -r -X "../zcode-plugin-honcho-v${version}.zip" marketplace.json plugins)
+          shasum -a 256 "zcode-plugin-honcho-v${version}.zip" > "zcode-plugin-honcho-v${version}.zip.sha256"
+          shasum -a 256 -c "zcode-plugin-honcho-v${version}.zip.sha256"
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >-
-          gh release create "$GITHUB_REF_NAME"
-          artifacts/plugin.zip artifacts/plugin.zip.sha256
-          --verify-tag --generate-notes --title "$GITHUB_REF_NAME"
+        run: |
+          version=$(node -p "require('./.zcode-plugin/plugin.json').version")
+          gh release create "$GITHUB_REF_NAME" \
+            "zcode-plugin-honcho-v${version}.zip" \
+            "zcode-plugin-honcho-v${version}.zip.sha256" \
+            --verify-tag --generate-notes --title "$GITHUB_REF_NAME"

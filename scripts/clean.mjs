@@ -4,5 +4,3 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 await rm(resolve(root, "dist"), { recursive: true, force: true });
-await rm(resolve(root, "build"), { recursive: true, force: true });
-await rm(resolve(root, "artifacts"), { recursive: true, force: true });

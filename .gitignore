@@ -1,7 +1,7 @@
 node_modules/
 dist/
-build/
-artifacts/
+/*.zip
+/*.zip.sha256
 .vitest/
 .env*
 *.log

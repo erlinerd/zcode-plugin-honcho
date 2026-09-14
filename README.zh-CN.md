@@ -45,22 +45,21 @@ npm run check
 npm run package:plugin
 ```
 
-## 安装
+## 安装发行包
 
-ZCode 会把一个目录当作**插件市场**，本仓库根目录带有 `marketplace.json`。先构建，然后在
-**Settings → Plugins → Add marketplace → Select directory** 选择本仓库目录，从个人市场安装
-`zcode-plugin-honcho`，启用并填写 `userConfig`。
+从 Release 页面下载 `zcode-plugin-honcho-v<version>.zip`，解压后在
+**Settings → Plugins → Add marketplace** 中把解压出的目录添加为本地市场。ZIP
+本身就是一个市场壳：其 `marketplace.json` 从自带 `plugins/` 目录解析
+`zcode-plugin-honcho`，安装机器无需任何构建。不要把本仓库的新 clone 直接当作
+市场添加：`dist/` 是生成物（不入 Git），没有它 hook 无法启动。要在 checkout
+上开发安装，先跑 `npm install`——`prepare` 钩子会构建 `dist/`。
 
-也可以在线安装：在 **Settings → Plugins → Create → Add marketplace** 中填入 GitHub 仓库地址：
-
-- 社区市场仓库：<https://github.com/erlinerd/zcode-plugin-honcho>
 - 市场清单：<https://raw.githubusercontent.com/erlinerd/zcode-plugin-honcho/main/marketplace.json>
 - 插件清单：<https://raw.githubusercontent.com/erlinerd/zcode-plugin-honcho/main/.zcode-plugin/plugin.json>
-- 最新插件 ZIP：<https://github.com/erlinerd/zcode-plugin-honcho/releases/latest/download/plugin.zip>
-- 最新 ZIP 校验文件：<https://github.com/erlinerd/zcode-plugin-honcho/releases/latest/download/plugin.zip.sha256>
-- Release 页面：<https://github.com/erlinerd/zcode-plugin-honcho/releases/latest>
+- 最新发行包（资产：`zcode-plugin-honcho-v<version>.zip`）：<https://github.com/erlinerd/zcode-plugin-honcho/releases/latest>
 
-市场名为 `zcode-plugin-honcho`，其 `marketplace.json` 用 `source: "."` 指向仓库本身；
+市场名为 `zcode-plugin-honcho`，其 `marketplace.json` 用
+`source: "./dist/plugins/zcode-plugin-honcho"` 指向 dist 市场树；
 带版本的发布产物由打 tag 的 GitHub Actions 工作流生成。
 
 安装后在插件设置里填 `honcho_api_key`、`honcho_workspace_id`、`honcho_peer_id`。
