@@ -23,7 +23,7 @@
     "prepare": "husky && npm run build"
   },
   "dependencies": {
-    "@honcho-ai/sdk": "^2.4.0"
+    "@honcho-ai/sdk": "^2.5.0"
   },
   "devDependencies": {
     "@types/node": "^26.4.1",
