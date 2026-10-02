@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.4 - 2026-10-02
+
+- 运行时依赖升级：`@honcho-ai/sdk` 2.4.0 → 2.5.0（进 `hooks/entry.mjs` bundle）。
+- 开发与 CI 工具链升级：`oxlint` 1.82.0 → 1.85.0、`@types/node` 26.4.1 → 26.6.2、`vitest` 5.0.0 → 5.0.1（dev-only）。
+- CI 放弃 Node 20：matrix 只留 22，`engines` 从 `>=20` 改为 `>=22.12`（Node 20 装 lint-staged@17 与 vitest@5 爆 EBADENGINE）。
+
 ## 0.2.3 - 2026-09-14
 
 - 发行架构对齐 zcode-plugin-langfuse 终版设计：`dist/` 定型为「市场壳 + 官方模板插件布局」——`dist/marketplace.json`（source `./plugins/<name>`）+ `dist/plugins/zcode-plugin-honcho/`（`.zcode-plugin/` 与 `.claude-plugin/` 双 manifest、`hooks/hooks.json`、直达 bundle `hooks/entry.mjs`（无 dist 段、无 sourcemap）、双语 README、LICENSE、THIRD_PARTY_NOTICES）。根 `marketplace.json` 的 entry 改指 `./dist/plugins/<name>` 并补 `description_i18n`/`category`/`tags`/`strict`。

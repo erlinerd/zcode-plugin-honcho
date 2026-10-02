@@ -1,6 +1,6 @@
 {
   "name": "zcode-plugin-honcho",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "private": true,
   "description": "Persistent Honcho memory for ZCode sessions.",
   "type": "module",
